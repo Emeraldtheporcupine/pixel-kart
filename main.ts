@@ -75,6 +75,12 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
 scene.onHitWall(SpriteKind.GreenShell, function (sprite, location) {
     bumps += 1
 })
+function Start () {
+    for (let enemies of sprites.allOfKind(SpriteKind.Enemy)) {
+        sprites.setDataNumber(enemies, "DestinationIndex", 0)
+        AImoves(enemies)
+    }
+}
 sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Enemy, function (sprite, otherSprite) {
     sprite.x += -2
     otherSprite.x += 2
@@ -97,7 +103,7 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile5`, function (sprite, l
         Render.jump(sprite, 20)
         animation.runImageAnimation(
         HUD,
-        [assets.image`BoxGreen`, assets.image`BoxRed`, assets.image`BoxShroom`, assets.image`BoxFeather`],
+        assets.animation`Change`,
         100,
         true
         )
@@ -142,6 +148,7 @@ namespace userconfig {
     export const ARCADE_SCREEN_WIDTH = 400
     export const ARCADE_SCREEN_HEIGHT = 300
 }
+let PlayerControl = false
 direction = 0
 speed = 0
 CrossingFinish = false
@@ -220,30 +227,34 @@ for (let CoinStuff of tiles.getTilesByType(assets.tile`myTile4`)) {
 }
 Mrro.setFlag(SpriteFlag.ShowPhysics, false)
 Lrrgi.setFlag(SpriteFlag.ShowPhysics, false)
-for (let enemies of sprites.allOfKind(SpriteKind.Enemy)) {
-    sprites.setDataNumber(enemies, "DestinationIndex", 0)
-    AImoves(enemies)
-}
 Render.setSpriteAttribute(HUD, RCSpriteAttribute.ZPosition, 3000)
+music.play(music.stringPlayable("E - - - E - - - ", 150), music.PlaybackMode.InBackground)
+timer.after(3000, function () {
+    music.play(music.stringPlayable("B - - - - - - - ", 100), music.PlaybackMode.InBackground)
+    PlayerControl = true
+    Start()
+})
 game.onUpdate(function () {
-    if (controller.A.isPressed()) {
-        speed += 2
-    } else {
-        speed += speed * -0.05
-    }
-    if (speed > 2 || Render.getSpriteAttribute(Mrro, RCSpriteAttribute.ZVelocity) > 0) {
-        if (controller.left.isPressed()) {
-            Mrro.setImage(assets.image`MrroLeft`)
-            direction += -2
-        } else if (controller.right.isPressed()) {
-            Mrro.setImage(assets.image`MrroRight`)
-            direction += 2
+    if (PlayerControl == true) {
+        if (controller.A.isPressed()) {
+            speed += 2
         } else {
-            Mrro.setImage(assets.image`MrroBack`)
+            speed += speed * -0.05
         }
-    }
-    if (speed > speedCap) {
-        speed = speedCap
+        if (speed > 2 || Render.getSpriteAttribute(Mrro, RCSpriteAttribute.ZVelocity) > 0) {
+            if (controller.left.isPressed()) {
+                Mrro.setImage(assets.image`MrroLeft`)
+                direction += -2
+            } else if (controller.right.isPressed()) {
+                Mrro.setImage(assets.image`MrroRight`)
+                direction += 2
+            } else {
+                Mrro.setImage(assets.image`MrroBack`)
+            }
+        }
+        if (speed > speedCap) {
+            speed = speedCap
+        }
     }
     if (Boosting == false) {
         if (!(PlayerCamera.tileKindAt(TileDirection.Center, assets.tile`myTile6`))) {
