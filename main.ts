@@ -132,6 +132,7 @@ let Feather: Sprite = null
 let Boosting = false
 let Shroom: Sprite = null
 let Shell: Sprite = null
+let PlayerControl = false
 let CoinSprite: Sprite = null
 let HUD: Sprite = null
 let Mrro: Sprite = null
@@ -148,7 +149,6 @@ namespace userconfig {
     export const ARCADE_SCREEN_WIDTH = 400
     export const ARCADE_SCREEN_HEIGHT = 300
 }
-let PlayerControl = false
 direction = 0
 speed = 0
 CrossingFinish = false
@@ -228,11 +228,13 @@ for (let CoinStuff of tiles.getTilesByType(assets.tile`myTile4`)) {
 Mrro.setFlag(SpriteFlag.ShowPhysics, false)
 Lrrgi.setFlag(SpriteFlag.ShowPhysics, false)
 Render.setSpriteAttribute(HUD, RCSpriteAttribute.ZPosition, 3000)
-music.play(music.stringPlayable("E - - - E - - - ", 150), music.PlaybackMode.InBackground)
-timer.after(3000, function () {
-    music.play(music.stringPlayable("B - - - - - - - ", 100), music.PlaybackMode.InBackground)
-    PlayerControl = true
-    Start()
+timer.after(1000, function () {
+    music.play(music.stringPlayable("E - - - E - - - ", 150), music.PlaybackMode.InBackground)
+    timer.after(3000, function () {
+        music.play(music.stringPlayable("B - - - - - - - ", 100), music.PlaybackMode.InBackground)
+        PlayerControl = true
+        Start()
+    })
 })
 game.onUpdate(function () {
     if (PlayerControl == true) {
