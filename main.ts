@@ -94,7 +94,11 @@ scene.onOverlapTile(SpriteKind.Enemy, assets.tile`myTile0`, function (sprite, lo
 function AImoves (enemy: Sprite) {
     sprites.setDataNumber(enemy, "EnemyX", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][0] + randint(-5, 5))
     sprites.setDataNumber(enemy, "EnemyY", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][1] + randint(-5, 5))
-    spriteutils.moveToAtSpeed(enemy, spriteutils.point(sprites.readDataNumber(enemy, "EnemyX"), sprites.readDataNumber(enemy, "EnemyY")), randint(120, 140))
+    if (spriteutils.heading(enemy) > 100) {
+        spriteutils.moveToAtSpeed(enemy, spriteutils.point(sprites.readDataNumber(enemy, "EnemyX"), sprites.readDataNumber(enemy, "EnemyY")), randint(120, 140))
+    } else if (spriteutils.heading(enemy) < 101) {
+        spriteutils.moveToAtSpeed(enemy, spriteutils.point(sprites.readDataNumber(enemy, "EnemyX"), sprites.readDataNumber(enemy, "EnemyY")), sprites.readDataNumber(enemy, "enemySpeed"))
+    }
 }
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile5`, function (sprite, location) {
     if (selecting == false) {
@@ -225,6 +229,9 @@ for (let CoinStuff of tiles.getTilesByType(assets.tile`myTile4`)) {
     tiles.placeOnTile(CoinSprite, CoinStuff)
     tiles.setTileAt(CoinStuff, assets.tile`myTile1`)
 }
+for (let enemiesData of sprites.allOfKind(SpriteKind.Enemy)) {
+    sprites.setDataNumber(enemiesData, "enemySpeed", 0)
+}
 Mrro.setFlag(SpriteFlag.ShowPhysics, false)
 Lrrgi.setFlag(SpriteFlag.ShowPhysics, false)
 Render.setSpriteAttribute(HUD, RCSpriteAttribute.ZPosition, 3000)
@@ -310,6 +317,9 @@ game.onUpdate(function () {
         spriteutils.setVelocityAtAngle(Mrro, spriteutils.degreesToRadians(direction + slide), speed)
     }
     for (let enemies2 of sprites.allOfKind(SpriteKind.Enemy)) {
+        if (spriteutils.speed(enemies2) < 101) {
+            sprites.changeDataNumberBy(enemies2, "enemySpeed", 0.5)
+        }
         if (enemies2.x == sprites.readDataNumber(enemies2, "EnemyX") && enemies2.y == sprites.readDataNumber(enemies2, "EnemyY")) {
             sprites.changeDataNumberBy(enemies2, "DestinationIndex", 1)
             if (sprites.readDataNumber(enemies2, "DestinationIndex") > LVLwaypoints.length - 1) {
