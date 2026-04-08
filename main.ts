@@ -94,9 +94,7 @@ scene.onOverlapTile(SpriteKind.Enemy, assets.tile`myTile0`, function (sprite, lo
 function AImoves (enemy: Sprite) {
     sprites.setDataNumber(enemy, "EnemyX", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][0] + randint(-5, 5))
     sprites.setDataNumber(enemy, "EnemyY", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][1] + randint(-5, 5))
-    if (spriteutils.heading(enemy) > 100) {
-        spriteutils.moveToAtSpeed(enemy, spriteutils.point(sprites.readDataNumber(enemy, "EnemyX"), sprites.readDataNumber(enemy, "EnemyY")), randint(120, 140))
-    } else if (spriteutils.heading(enemy) < 101) {
+    if (sprites.readDataNumber(enemy, "enemySpeed") > 0) {
         spriteutils.moveToAtSpeed(enemy, spriteutils.point(sprites.readDataNumber(enemy, "EnemyX"), sprites.readDataNumber(enemy, "EnemyY")), sprites.readDataNumber(enemy, "enemySpeed"))
     }
 }
@@ -136,6 +134,7 @@ let Feather: Sprite = null
 let Boosting = false
 let Shroom: Sprite = null
 let Shell: Sprite = null
+let enemyControl = false
 let PlayerControl = false
 let CoinSprite: Sprite = null
 let HUD: Sprite = null
@@ -240,9 +239,11 @@ timer.after(1000, function () {
     timer.after(3000, function () {
         music.play(music.stringPlayable("B - - - - - - - ", 100), music.PlaybackMode.InBackground)
         PlayerControl = true
+        enemyControl = true
         Start()
     })
 })
+sprites.destroy(Pinch)
 game.onUpdate(function () {
     if (PlayerControl == true) {
         if (controller.A.isPressed()) {
@@ -317,15 +318,25 @@ game.onUpdate(function () {
         spriteutils.setVelocityAtAngle(Mrro, spriteutils.degreesToRadians(direction + slide), speed)
     }
     for (let enemies2 of sprites.allOfKind(SpriteKind.Enemy)) {
-        if (spriteutils.speed(enemies2) < 101) {
-            sprites.changeDataNumberBy(enemies2, "enemySpeed", 0.5)
-        }
-        if (enemies2.x == sprites.readDataNumber(enemies2, "EnemyX") && enemies2.y == sprites.readDataNumber(enemies2, "EnemyY")) {
-            sprites.changeDataNumberBy(enemies2, "DestinationIndex", 1)
-            if (sprites.readDataNumber(enemies2, "DestinationIndex") > LVLwaypoints.length - 1) {
-                sprites.setDataNumber(enemies2, "DestinationIndex", 0)
+        if (enemyControl == true) {
+            if (spriteutils.speed(enemies2) < 120) {
+                sprites.changeDataNumberBy(enemies2, "enemySpeed", 0.5)
+            }
+            if ((enemies2.x >= sprites.readDataNumber(enemies2, "EnemyX") - 2 || enemies2.x <= sprites.readDataNumber(enemies2, "EnemyX") + 2) && (enemies2.y >= sprites.readDataNumber(enemies2, "EnemyY") - 2 || enemies2.y <= sprites.readDataNumber(enemies2, "EnemyY") + 2)) {
+                sprites.changeDataNumberBy(enemies2, "DestinationIndex", 1)
+                if (sprites.readDataNumber(enemies2, "DestinationIndex") > LVLwaypoints.length - 1) {
+                    sprites.setDataNumber(enemies2, "DestinationIndex", 0)
+                }
             }
             AImoves(enemies2)
+            console.logValue("enemyX", enemies2.x)
+            console.logValue("enemyY", enemies2.y)
+            console.logValue("------------", 0)
+            console.logValue("dataX", sprites.readDataNumber(enemies2, "EnemyX"))
+            console.logValue("dataY", sprites.readDataNumber(enemies2, "EnemyY"))
+            console.logValue("------------", 0)
+        } else {
+        	
         }
     }
 })
