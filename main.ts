@@ -197,6 +197,19 @@ tiles.placeOnTile(Pinch, tiles.getTileLocation(10, 1))
 sprites.setDataNumber(Mrro, "LapsFinished", 0)
 sprites.setDataNumber(Lrrgi, "LapsFinished", 0)
 sprites.setDataNumber(Pinch, "LapsFinished", 0)
+spriteutils.placeAngleFrom(
+PlayerCamera,
+spriteutils.degreesToRadians(direction),
+-13,
+Mrro
+)
+spriteutils.placeAngleFrom(
+HUD,
+spriteutils.degreesToRadians(direction + 50),
+5,
+Mrro
+)
+Render.setViewAngleInDegree(direction)
 for (let CoinStuff of tiles.getTilesByType(assets.tile`myTile4`)) {
     CoinSprite = sprites.create(img`
         . . . . . . . . . . . . . . . . 
@@ -230,6 +243,7 @@ Mrro.setFlag(SpriteFlag.Ghost, false)
 Lrrgi.setFlag(SpriteFlag.Ghost, false)
 Mrro.setFlag(SpriteFlag.ShowPhysics, false)
 Lrrgi.setFlag(SpriteFlag.ShowPhysics, false)
+sprites.setDataNumber(Mrro, "DestinationIndex", -1)
 Render.setSpriteAttribute(HUD, RCSpriteAttribute.ZPosition, 3000)
 timer.after(1000, function () {
     music.play(music.stringPlayable("E - - - E - - - ", 120), music.PlaybackMode.UntilDone)
@@ -259,13 +273,6 @@ game.onUpdate(function () {
         if (speed > speedCap) {
             speed = speedCap
         }
-    }
-    if (Boosting == false) {
-        if (!(PlayerCamera.tileKindAt(TileDirection.Center, assets.tile`myTile6`))) {
-            speedCap = 120
-        } else {
-            speedCap = 60
-        }
         spriteutils.placeAngleFrom(
         PlayerCamera,
         spriteutils.degreesToRadians(direction),
@@ -286,15 +293,24 @@ game.onUpdate(function () {
         } else {
             spriteutils.setVelocityAtAngle(Mrro, spriteutils.degreesToRadians(direction + slide), speed)
         }
-        if (speed > speedCap - 30 && controller.right.isPressed()) {
-            tempVar = speedCap - 30
-            slide = (speed - tempVar) / 30 * 30 * -1
-        } else if (speed > speedCap - 30 && controller.left.isPressed()) {
-            tempVar = speedCap - 30
-            slide = (speed - tempVar) / 30 * 30
+        if (speed > speedCap - 15 && controller.right.isPressed()) {
+            tempVar = speedCap - 15
+            slide = (speed - tempVar) / 15 * 15 * -1
+        } else if (speed > speedCap - 15 && controller.left.isPressed()) {
+            tempVar = speedCap - 15
+            slide = (speed - tempVar) / 15 * 15
         } else {
             tempVar = 0
             slide = 0
+        }
+    } else {
+        speed += speed * -0.05
+    }
+    if (Boosting == false) {
+        if (!(PlayerCamera.tileKindAt(TileDirection.Center, assets.tile`myTile6`))) {
+            speedCap = 120
+        } else {
+            speedCap = 60
         }
     }
     if (Mrro.tileKindAt(TileDirection.Center, assets.tile`myTile0`) && CrossingFinish == false) {
@@ -308,7 +324,6 @@ game.onUpdate(function () {
             CrossingFinish = false
             if (sprites.readDataNumber(Mrro, "LapsFinished") > 4) {
                 PlayerControl = false
-                sprites.setDataNumber(Mrro, "DestinationIndex", 0)
             }
         }
     }
