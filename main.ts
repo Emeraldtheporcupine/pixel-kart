@@ -92,11 +92,9 @@ scene.onOverlapTile(SpriteKind.Enemy, assets.tile`myTile0`, function (sprite, lo
     })
 })
 function AImoves (enemy: Sprite) {
-    sprites.setDataNumber(enemy, "EnemyX", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][0] + randint(-5, 5))
-    sprites.setDataNumber(enemy, "EnemyY", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][1] + randint(-5, 5))
-    if (sprites.readDataNumber(enemy, "enemySpeed") > 0) {
-        spriteutils.moveToAtSpeed(enemy, spriteutils.point(sprites.readDataNumber(enemy, "EnemyX"), sprites.readDataNumber(enemy, "EnemyY")), sprites.readDataNumber(enemy, "enemySpeed"))
-    }
+    sprites.setDataNumber(enemy, "EnemyX", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][0])
+    sprites.setDataNumber(enemy, "EnemyY", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][1])
+    spriteutils.moveToAtSpeed(enemy, spriteutils.point(sprites.readDataNumber(enemy, "EnemyX"), sprites.readDataNumber(enemy, "EnemyY")), randint(100, 140))
 }
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile5`, function (sprite, location) {
     if (selecting == false) {
@@ -228,22 +226,18 @@ for (let CoinStuff of tiles.getTilesByType(assets.tile`myTile4`)) {
     tiles.placeOnTile(CoinSprite, CoinStuff)
     tiles.setTileAt(CoinStuff, assets.tile`myTile1`)
 }
-for (let enemiesData of sprites.allOfKind(SpriteKind.Enemy)) {
-    sprites.setDataNumber(enemiesData, "enemySpeed", 0)
-}
+Mrro.setFlag(SpriteFlag.Ghost, false)
+Lrrgi.setFlag(SpriteFlag.Ghost, false)
 Mrro.setFlag(SpriteFlag.ShowPhysics, false)
 Lrrgi.setFlag(SpriteFlag.ShowPhysics, false)
 Render.setSpriteAttribute(HUD, RCSpriteAttribute.ZPosition, 3000)
 timer.after(1000, function () {
-    music.play(music.stringPlayable("E - - - E - - - ", 150), music.PlaybackMode.InBackground)
-    timer.after(3000, function () {
-        music.play(music.stringPlayable("B - - - - - - - ", 100), music.PlaybackMode.InBackground)
-        PlayerControl = true
-        enemyControl = true
-        Start()
-    })
+    music.play(music.stringPlayable("E - - - E - - - ", 120), music.PlaybackMode.UntilDone)
+    music.play(music.stringPlayable("A - - - - - - - ", 120), music.PlaybackMode.InBackground)
+    PlayerControl = true
+    enemyControl = true
+    Start()
 })
-sprites.destroy(Pinch)
 game.onUpdate(function () {
     if (PlayerControl == true) {
         if (controller.A.isPressed()) {
@@ -319,22 +313,13 @@ game.onUpdate(function () {
     }
     for (let enemies2 of sprites.allOfKind(SpriteKind.Enemy)) {
         if (enemyControl == true) {
-            if (spriteutils.speed(enemies2) < 120) {
-                sprites.changeDataNumberBy(enemies2, "enemySpeed", 0.5)
-            }
-            if ((enemies2.x >= sprites.readDataNumber(enemies2, "EnemyX") - 2 || enemies2.x <= sprites.readDataNumber(enemies2, "EnemyX") + 2) && (enemies2.y >= sprites.readDataNumber(enemies2, "EnemyY") - 2 || enemies2.y <= sprites.readDataNumber(enemies2, "EnemyY") + 2)) {
+            if (enemies2.x >= sprites.readDataNumber(enemies2, "EnemyX") - 2 && enemies2.x <= sprites.readDataNumber(enemies2, "EnemyX") + 2 && (enemies2.y >= sprites.readDataNumber(enemies2, "EnemyY") - 2 && enemies2.y <= sprites.readDataNumber(enemies2, "EnemyY") + 2)) {
                 sprites.changeDataNumberBy(enemies2, "DestinationIndex", 1)
                 if (sprites.readDataNumber(enemies2, "DestinationIndex") > LVLwaypoints.length - 1) {
                     sprites.setDataNumber(enemies2, "DestinationIndex", 0)
                 }
+                AImoves(enemies2)
             }
-            AImoves(enemies2)
-            console.logValue("enemyX", enemies2.x)
-            console.logValue("enemyY", enemies2.y)
-            console.logValue("------------", 0)
-            console.logValue("dataX", sprites.readDataNumber(enemies2, "EnemyX"))
-            console.logValue("dataY", sprites.readDataNumber(enemies2, "EnemyY"))
-            console.logValue("------------", 0)
         } else {
         	
         }
