@@ -125,8 +125,8 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile5`, function (sprite, l
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
     spriteutils.setVelocityAtAngle(sprite, direction + 90, speed / 2)
 })
-let slide = 0
 let tempVar = 0
+let slide = 0
 let bumps = 0
 let Feather: Sprite = null
 let Boosting = false
@@ -266,6 +266,36 @@ game.onUpdate(function () {
         } else {
             speedCap = 60
         }
+        spriteutils.placeAngleFrom(
+        PlayerCamera,
+        spriteutils.degreesToRadians(direction),
+        -13,
+        Mrro
+        )
+        spriteutils.placeAngleFrom(
+        HUD,
+        spriteutils.degreesToRadians(direction + 50),
+        5,
+        Mrro
+        )
+        Render.setViewAngleInDegree(direction)
+        if (spriteutils.degreesToRadians(direction + slide) > Math.PI * 2) {
+            spriteutils.setVelocityAtAngle(Mrro, 0, speed)
+        } else if (spriteutils.degreesToRadians(direction + slide) < 0) {
+            spriteutils.setVelocityAtAngle(Mrro, Math.PI * 2, speed)
+        } else {
+            spriteutils.setVelocityAtAngle(Mrro, spriteutils.degreesToRadians(direction + slide), speed)
+        }
+        if (speed > speedCap - 30 && controller.right.isPressed()) {
+            tempVar = speedCap - 30
+            slide = (speed - tempVar) / 30 * 30 * -1
+        } else if (speed > speedCap - 30 && controller.left.isPressed()) {
+            tempVar = speedCap - 30
+            slide = (speed - tempVar) / 30 * 30
+        } else {
+            tempVar = 0
+            slide = 0
+        }
     }
     if (Mrro.tileKindAt(TileDirection.Center, assets.tile`myTile0`) && CrossingFinish == false) {
         CrossingFinish = true
@@ -274,42 +304,18 @@ game.onUpdate(function () {
             sprites.changeDataNumberBy(Mrro, "LapsFinished", 1)
         })
     } else {
-        CrossingFinish = false
+        if (!(Mrro.tileKindAt(TileDirection.Center, assets.tile`myTile0`))) {
+            CrossingFinish = false
+            if (sprites.readDataNumber(Mrro, "LapsFinished") > 4) {
+                PlayerControl = false
+                sprites.setDataNumber(Mrro, "DestinationIndex", 0)
+            }
+        }
     }
     if (direction > 360) {
         direction = 0
     } else if (direction < 0) {
         direction = 360
-    }
-    if (speed > speedCap - 30 && controller.right.isPressed()) {
-        tempVar = speedCap - 30
-        slide = (speed - tempVar) / 30 * 30 * -1
-    } else if (speed > speedCap - 30 && controller.left.isPressed()) {
-        tempVar = speedCap - 30
-        slide = (speed - tempVar) / 30 * 30
-    } else {
-        tempVar = 0
-        slide = 0
-    }
-    spriteutils.placeAngleFrom(
-    PlayerCamera,
-    spriteutils.degreesToRadians(direction),
-    -13,
-    Mrro
-    )
-    spriteutils.placeAngleFrom(
-    HUD,
-    spriteutils.degreesToRadians(direction + 50),
-    5,
-    Mrro
-    )
-    Render.setViewAngleInDegree(direction)
-    if (spriteutils.degreesToRadians(direction + slide) > Math.PI * 2) {
-        spriteutils.setVelocityAtAngle(Mrro, 0, speed)
-    } else if (spriteutils.degreesToRadians(direction + slide) < 0) {
-        spriteutils.setVelocityAtAngle(Mrro, Math.PI * 2, speed)
-    } else {
-        spriteutils.setVelocityAtAngle(Mrro, spriteutils.degreesToRadians(direction + slide), speed)
     }
     for (let enemies2 of sprites.allOfKind(SpriteKind.Enemy)) {
         if (enemyControl == true) {
