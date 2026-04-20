@@ -117,12 +117,6 @@ function debug () {
         tempSprite.setFlag(SpriteFlag.ShowPhysics, true)
     }
 }
-scene.onOverlapTile(SpriteKind.Enemy, assets.tile`myTile0`, function (sprite, location) {
-    timer.background(function () {
-        pauseUntil(() => CrossingFinish == false)
-        sprites.changeDataNumberBy(sprite, "LapsFinished", 1)
-    })
-})
 function AImoves (enemy: Sprite) {
     sprites.setDataNumber(enemy, "EnemyX", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][0] + randint(-5, 5))
     sprites.setDataNumber(enemy, "EnemyY", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][1] + randint(-5, 5))
@@ -183,7 +177,6 @@ let editMode = false
 let Inventory = 0
 let speedCap = 0
 let selecting = false
-let CrossingFinish = false
 let speed = 0
 let direction = 0
 namespace userconfig {
@@ -192,7 +185,7 @@ namespace userconfig {
 }
 direction = 0
 speed = 0
-CrossingFinish = false
+let CrossingFinish = false
 selecting = false
 speedCap = 120
 Inventory = 4
@@ -212,12 +205,14 @@ LVLwaypoints = [
 [65, 210],
 [60, 80],
 [120, 40],
-[180, 40]
+[210, 40]
 ]
 if (editMode) {
     debug()
+    Render.setViewMode(ViewMode.tilemapView)
+} else {
+    Render.setViewMode(ViewMode.raycastingView)
 }
-Render.setViewMode(ViewMode.raycastingView)
 tiles.setCurrentTilemap(tilemap`level`)
 PlayerCamera = Render.getRenderSpriteVariable()
 PlayerCamera.setFlag(SpriteFlag.Ghost, true)
@@ -415,9 +410,20 @@ game.onUpdate(function () {
                     sprites.setDataNumber(enemies2, "DestinationIndex", 0)
                 }
                 AImoves(enemies2)
+                if (sprites.readDataNumber(enemies2, "DestinationIndex") == LVLwaypoints.length - 2) {
+                    sprites.setDataBoolean(enemies2, "canCrossFinish", true)
+                }
             }
         } else {
         	
+        }
+        if (enemies2.tileKindAt(TileDirection.Center, assets.tile`myTile0`) && sprites.readDataBoolean(enemies2, "canCrossFinish") == true) {
+            sprites.setDataBoolean(enemies2, "canCrossFinish", false)
+            sprites.changeDataNumberBy(enemies2, "LapsFinished", 1)
+            console.log(sprites.readDataNumber(enemies2, "LapsFinished"))
+            if (sprites.readDataNumber(enemies2, "LapsFinished") > 5) {
+                spriteutils.setVelocityAtAngle(enemies2, 0, 0)
+            }
         }
     }
 })
