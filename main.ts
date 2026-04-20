@@ -3,73 +3,91 @@ namespace SpriteKind {
     export const Coin = SpriteKind.create()
     export const RedShell = SpriteKind.create()
     export const HeadsUpDisplay = SpriteKind.create()
+    export const KillerShell = SpriteKind.create()
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Coin, function (sprite, otherSprite) {
     sprites.destroy(otherSprite)
     music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.InBackground)
 })
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (deBug == false) {
-        selecting = false
-        HUD.setImage(assets.image`BoxEmpty`)
-        if (Inventory == 1) {
-            Shell = sprites.create(assets.image`shell`, SpriteKind.GreenShell)
-            animation.runImageAnimation(
-            Shell,
-            assets.animation`GreenShell`,
-            100,
-            true
-            )
-            Shell.setBounceOnWall(true)
-            Shell.scale = 0.2
-            Shell.setPosition(Mrro.x, Mrro.y)
-            spriteutils.setVelocityAtAngle(Shell, spriteutils.degreesToRadians(direction), 200)
-        } else if (Inventory == 2) {
-            Shell = sprites.create(assets.image`shellRed`, SpriteKind.RedShell)
-            animation.runImageAnimation(
-            Shell,
-            assets.animation`RedShell`,
-            100,
-            true
-            )
-            Shell.scale = 0.2
-            Shell.setPosition(Mrro.x, Mrro.y)
-            spriteutils.setVelocityAtAngle(Shell, spriteutils.degreesToRadians(direction), 200)
-        } else if (Inventory == 3) {
-            Shroom = sprites.create(assets.image`Shroom`, SpriteKind.Food)
-            Shroom.scale = 0.1
-            Shroom.setPosition(Mrro.x, Mrro.y)
-            spriteutils.setVelocityAtAngle(Shroom, spriteutils.degreesToRadians(direction), speed)
-            speedCap = 300
-            speed = 300
-            Boosting = true
-            timer.after(500, function () {
-                sprites.destroy(Shroom)
-                timer.after(1000, function () {
-                    Boosting = false
+    if (PlayerControl == true) {
+        if (editMode == false) {
+            selecting = false
+            HUD.setImage(assets.image`BoxEmpty`)
+            if (Inventory == 1) {
+                Shell = sprites.create(assets.image`shell`, SpriteKind.GreenShell)
+                animation.runImageAnimation(
+                Shell,
+                assets.animation`GreenShell`,
+                100,
+                true
+                )
+                Shell.setBounceOnWall(true)
+                Shell.scale = 0.2
+                Shell.setPosition(Mrro.x, Mrro.y)
+                spriteutils.setVelocityAtAngle(Shell, spriteutils.degreesToRadians(direction), 200)
+                timer.after(500, function () {
+                    Shell.setKind(SpriteKind.KillerShell)
                 })
-            })
-            Render.jump(Shroom, 60)
-        } else if (Inventory == 4) {
-            Feather = sprites.create(assets.image`Feather`, SpriteKind.Food)
-            Feather.scale = 0.1
-            Feather.setPosition(Mrro.x, Mrro.y)
-            spriteutils.setVelocityAtAngle(Feather, spriteutils.degreesToRadians(direction), speed)
-            Render.jump(Feather, 60)
-            timer.after(500, function () {
-                sprites.destroy(Feather)
-                Render.jump(Mrro, 80)
-                Render.jump(PlayerCamera, 80)
-            })
-        } else {
-            Render.jump(Mrro, 20)
+            } else if (Inventory == 2) {
+                Shell = sprites.create(assets.image`shellRed`, SpriteKind.RedShell)
+                animation.runImageAnimation(
+                Shell,
+                assets.animation`RedShell`,
+                100,
+                true
+                )
+                Shell.scale = 0.2
+                Shell.setPosition(Mrro.x, Mrro.y)
+                spriteutils.setVelocityAtAngle(Shell, spriteutils.degreesToRadians(direction), 200)
+                tempVar2 = randint(1, 3)
+                if (tempVar2 == 1) {
+                    sprites.setDataSprite(Shell, "ShellTarget", Mrro)
+                } else if (tempVar2 == 2) {
+                    sprites.setDataSprite(Shell, "ShellTarget", Sanic)
+                } else if (tempVar2 == 3) {
+                    sprites.setDataSprite(Shell, "ShellTarget", Kyrbo)
+                }
+                timer.after(1000, function () {
+                    Shell.setKind(SpriteKind.KillerShell)
+                    Shell.follow(sprites.readDataSprite(Shell, "ShellTarget"), 200)
+                })
+            } else if (Inventory == 3) {
+                Shroom = sprites.create(assets.image`Shroom`, SpriteKind.Food)
+                Shroom.scale = 0.1
+                Shroom.setPosition(Mrro.x, Mrro.y)
+                spriteutils.setVelocityAtAngle(Shroom, spriteutils.degreesToRadians(direction), speed)
+                speedCap = 300
+                speed = 300
+                Boosting = true
+                timer.after(500, function () {
+                    sprites.destroy(Shroom)
+                    timer.after(1000, function () {
+                        Boosting = false
+                    })
+                })
+                Render.jump(Shroom, 60)
+            } else if (Inventory == 4) {
+                Feather = sprites.create(assets.image`Feather`, SpriteKind.Food)
+                Feather.scale = 0.1
+                Feather.setPosition(Mrro.x, Mrro.y)
+                spriteutils.setVelocityAtAngle(Feather, spriteutils.degreesToRadians(direction), speed)
+                Render.jump(Feather, 60)
+                timer.after(500, function () {
+                    sprites.destroy(Feather)
+                    Render.jump(Mrro, 80)
+                    Render.jump(PlayerCamera, 80)
+                })
+            } else {
+                Render.jump(Mrro, 20)
+            }
+            Inventory = 0
         }
-        Inventory = 0
-    }
-    if (deBug == true) {
-        console.log(Mrro.x)
-        console.log(Mrro.y)
-        console.log("-----------")
+        if (editMode == true) {
+            console.log(Mrro.x)
+            console.log(Mrro.y)
+            console.log("-----------")
+        }
     }
 })
 scene.onHitWall(SpriteKind.GreenShell, function (sprite, location) {
@@ -85,6 +103,20 @@ sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Enemy, function (sprite, otherSpr
     sprite.x += -2
     otherSprite.x += 2
 })
+sprites.onOverlap(SpriteKind.KillerShell, SpriteKind.Enemy, function (sprite, otherSprite) {
+    sprites.destroy(sprite)
+    spriteutils.setVelocityAtAngle(otherSprite, 0, 0)
+    timer.after(500, function () {
+        AImoves(otherSprite)
+    })
+})
+function debug () {
+    for (let waypoint of LVLwaypoints) {
+        tempSprite = sprites.create(assets.image`Jerry_orange`, SpriteKind.HeadsUpDisplay)
+        tempSprite.setPosition(waypoint[0], waypoint[1])
+        tempSprite.setFlag(SpriteFlag.ShowPhysics, true)
+    }
+}
 scene.onOverlapTile(SpriteKind.Enemy, assets.tile`myTile0`, function (sprite, location) {
     timer.background(function () {
         pauseUntil(() => CrossingFinish == false)
@@ -92,10 +124,14 @@ scene.onOverlapTile(SpriteKind.Enemy, assets.tile`myTile0`, function (sprite, lo
     })
 })
 function AImoves (enemy: Sprite) {
-    sprites.setDataNumber(enemy, "EnemyX", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][0])
-    sprites.setDataNumber(enemy, "EnemyY", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][1])
+    sprites.setDataNumber(enemy, "EnemyX", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][0] + randint(-5, 5))
+    sprites.setDataNumber(enemy, "EnemyY", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][1] + randint(-5, 5))
     spriteutils.moveToAtSpeed(enemy, spriteutils.point(sprites.readDataNumber(enemy, "EnemyX"), sprites.readDataNumber(enemy, "EnemyY")), randint(100, 140))
 }
+sprites.onOverlap(SpriteKind.KillerShell, SpriteKind.Player, function (sprite, otherSprite) {
+    sprites.destroy(sprite)
+    speed = 0
+})
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile5`, function (sprite, location) {
     if (selecting == false) {
         selecting = true
@@ -127,6 +163,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSp
 })
 let tempVar = 0
 let slide = 0
+let tempSprite: Sprite = null
 let bumps = 0
 let Feather: Sprite = null
 let Boosting = false
@@ -134,12 +171,15 @@ let Shroom: Sprite = null
 let Shell: Sprite = null
 let enemyControl = false
 let PlayerControl = false
+let tempVar2 = 0
 let CoinSprite: Sprite = null
 let HUD: Sprite = null
+let Kyrbo: Sprite = null
+let Sanic: Sprite = null
 let Mrro: Sprite = null
 let PlayerCamera: Sprite = null
 let LVLwaypoints: number[][] = []
-let deBug = false
+let editMode = false
 let Inventory = 0
 let speedCap = 0
 let selecting = false
@@ -157,59 +197,44 @@ selecting = false
 speedCap = 120
 Inventory = 4
 let Placement = 1
-deBug = false
+editMode = false
 LVLwaypoints = [
 [330, 40],
 [400, 70],
 [450, 110],
 [455, 130],
 [455, 285],
-[440, 410],
-[400, 450],
+[430, 385],
 [360, 420],
 [260, 290],
-[210, 340],
-[180, 370],
-[150, 395],
+[200, 360],
+[110, 370],
 [65, 210],
-[40, 90],
 [60, 80],
 [120, 40],
 [180, 40]
 ]
+if (editMode) {
+    debug()
+}
 Render.setViewMode(ViewMode.raycastingView)
 tiles.setCurrentTilemap(tilemap`level`)
 PlayerCamera = Render.getRenderSpriteVariable()
 PlayerCamera.setFlag(SpriteFlag.Ghost, true)
 Render.setAttribute(Render.attribute.wallZScale, 1)
+Render.moveWithController(0, 0, 0)
 Mrro = sprites.create(assets.image`MrroBack`, SpriteKind.Player)
-let Lrrgi = sprites.create(assets.image`LrrgiBack`, SpriteKind.Enemy)
-let Pinch = sprites.create(assets.image`PinchBack`, SpriteKind.Enemy)
+Sanic = sprites.create(assets.image`SanicBack`, SpriteKind.Enemy)
+Kyrbo = sprites.create(assets.image`KyrboBack`, SpriteKind.Enemy)
 HUD = sprites.create(assets.image`BoxEmpty`, SpriteKind.HeadsUpDisplay)
 HUD.setFlag(SpriteFlag.Ghost, true)
 Mrro.scale = 0.12
-Lrrgi.scale = 0.12
-Pinch.scale = 0.12
+Sanic.scale = 0.12
+Kyrbo.scale = 0.12
 HUD.scale = 0.12
-tiles.placeOnTile(Mrro, tiles.getTileLocation(10, 2))
-tiles.placeOnTile(Lrrgi, tiles.getTileLocation(10, 3))
-tiles.placeOnTile(Pinch, tiles.getTileLocation(10, 1))
 sprites.setDataNumber(Mrro, "LapsFinished", 0)
-sprites.setDataNumber(Lrrgi, "LapsFinished", 0)
-sprites.setDataNumber(Pinch, "LapsFinished", 0)
-spriteutils.placeAngleFrom(
-PlayerCamera,
-spriteutils.degreesToRadians(direction),
--13,
-Mrro
-)
-spriteutils.placeAngleFrom(
-HUD,
-spriteutils.degreesToRadians(direction + 50),
-5,
-Mrro
-)
-Render.setViewAngleInDegree(direction)
+sprites.setDataNumber(Sanic, "LapsFinished", 0)
+sprites.setDataNumber(Kyrbo, "LapsFinished", 0)
 for (let CoinStuff of tiles.getTilesByType(assets.tile`myTile4`)) {
     CoinSprite = sprites.create(img`
         . . . . . . . . . . . . . . . . 
@@ -239,10 +264,58 @@ for (let CoinStuff of tiles.getTilesByType(assets.tile`myTile4`)) {
     tiles.placeOnTile(CoinSprite, CoinStuff)
     tiles.setTileAt(CoinStuff, assets.tile`myTile1`)
 }
+for (let SetupCoordinates of tiles.getTilesByType(assets.tile`myTile8`)) {
+    tiles.setTileAt(SetupCoordinates, assets.tile`myTile0`)
+    tempVar2 = randint(1, 3)
+    if (tempVar2 == 1) {
+        tiles.placeOnTile(Mrro, SetupCoordinates)
+        Mrro.x += -16
+        Mrro.y += -4
+        tiles.placeOnTile(Sanic, SetupCoordinates)
+        Sanic.x += -16
+        Sanic.y += 4
+        tiles.placeOnTile(Kyrbo, SetupCoordinates)
+        Kyrbo.x += -24
+        Kyrbo.y += -4
+    } else if (tempVar2 == 2) {
+        tiles.placeOnTile(Sanic, SetupCoordinates)
+        Sanic.x += -16
+        Sanic.y += -4
+        tiles.placeOnTile(Kyrbo, SetupCoordinates)
+        Kyrbo.x += -16
+        Kyrbo.y += 4
+        tiles.placeOnTile(Mrro, SetupCoordinates)
+        Mrro.x += -24
+        Mrro.y += -4
+    } else if (tempVar2 == 3) {
+        tiles.placeOnTile(Kyrbo, SetupCoordinates)
+        Kyrbo.x += -16
+        Kyrbo.y += -4
+        tiles.placeOnTile(Mrro, SetupCoordinates)
+        Mrro.x += -16
+        Mrro.y += 4
+        tiles.placeOnTile(Sanic, SetupCoordinates)
+        Sanic.x += -24
+        Sanic.y += -4
+    }
+}
+spriteutils.placeAngleFrom(
+PlayerCamera,
+spriteutils.degreesToRadians(direction),
+-13,
+Mrro
+)
+spriteutils.placeAngleFrom(
+HUD,
+spriteutils.degreesToRadians(direction + 50),
+5,
+Mrro
+)
+Render.setViewAngleInDegree(direction)
 Mrro.setFlag(SpriteFlag.Ghost, false)
-Lrrgi.setFlag(SpriteFlag.Ghost, false)
-Mrro.setFlag(SpriteFlag.ShowPhysics, false)
-Lrrgi.setFlag(SpriteFlag.ShowPhysics, false)
+Sanic.setFlag(SpriteFlag.Ghost, false)
+Mrro.setFlag(SpriteFlag.ShowPhysics, true)
+Sanic.setFlag(SpriteFlag.ShowPhysics, false)
 sprites.setDataNumber(Mrro, "DestinationIndex", -1)
 Render.setSpriteAttribute(HUD, RCSpriteAttribute.ZPosition, 3000)
 timer.after(1000, function () {
@@ -304,7 +377,9 @@ game.onUpdate(function () {
             slide = 0
         }
     } else {
+        spriteutils.setVelocityAtAngle(Mrro, spriteutils.degreesToRadians(direction), speed)
         speed += speed * -0.05
+        Render.setViewAngleInDegree(spriteutils.degreesToRadians(direction))
     }
     if (Boosting == false) {
         if (!(PlayerCamera.tileKindAt(TileDirection.Center, assets.tile`myTile6`))) {
@@ -322,7 +397,7 @@ game.onUpdate(function () {
     } else {
         if (!(Mrro.tileKindAt(TileDirection.Center, assets.tile`myTile0`))) {
             CrossingFinish = false
-            if (sprites.readDataNumber(Mrro, "LapsFinished") > 4) {
+            if (sprites.readDataNumber(Mrro, "LapsFinished") > 5) {
                 PlayerControl = false
             }
         }
