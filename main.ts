@@ -94,6 +94,7 @@ scene.onHitWall(SpriteKind.GreenShell, function (sprite, location) {
     bumps += 1
 })
 function Start () {
+    music.play(music.createSong(assets.song`Track 1`), music.PlaybackMode.LoopingInBackground)
     for (let enemies of sprites.allOfKind(SpriteKind.Enemy)) {
         sprites.setDataNumber(enemies, "DestinationIndex", 0)
         AImoves(enemies)
@@ -412,10 +413,16 @@ game.onUpdate(function () {
                     sprites.changeDataNumberBy(enemies2, "LapsFinished", 1)
                 } else if (sprites.readDataNumber(enemies2, "DestinationIndex") > LVLwaypoints.length - 2 && sprites.readDataNumber(enemies2, "LapsFinished") > 4) {
                     console.log("bye")
-                    enemyControl = false
                     sprites.setDataNumber(enemies2, "DestinationIndex", LVLwaypoints.length - 1)
+                    enemyControl = false
+                } else {
+                	
                 }
-                AImoves(enemies2)
+                if (enemyControl == true) {
+                    AImoves(enemies2)
+                } else {
+                	
+                }
                 if (sprites.readDataNumber(enemies2, "DestinationIndex") == LVLwaypoints.length - 2) {
                     sprites.setDataBoolean(enemies2, "canCrossFinish", true)
                 }
