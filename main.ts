@@ -190,7 +190,7 @@ selecting = false
 speedCap = 120
 Inventory = 4
 let Placement = 1
-editMode = true
+editMode = false
 LVLwaypoints = [
 [330, 40],
 [400, 70],
@@ -406,24 +406,24 @@ game.onUpdate(function () {
         if (enemyControl == true) {
             if (enemies2.x >= sprites.readDataNumber(enemies2, "EnemyX") - 2 && enemies2.x <= sprites.readDataNumber(enemies2, "EnemyX") + 2 && (enemies2.y >= sprites.readDataNumber(enemies2, "EnemyY") - 2 && enemies2.y <= sprites.readDataNumber(enemies2, "EnemyY") + 2)) {
                 sprites.changeDataNumberBy(enemies2, "DestinationIndex", 1)
-                if (sprites.readDataNumber(enemies2, "DestinationIndex") > LVLwaypoints.length - 1) {
+                if (sprites.readDataNumber(enemies2, "DestinationIndex") > LVLwaypoints.length - 1 && sprites.readDataNumber(enemies2, "LapsFinished") < 4) {
+                    console.log("hi")
                     sprites.setDataNumber(enemies2, "DestinationIndex", 0)
+                    sprites.changeDataNumberBy(enemies2, "LapsFinished", 1)
+                } else if (sprites.readDataNumber(enemies2, "DestinationIndex") > LVLwaypoints.length - 2 && sprites.readDataNumber(enemies2, "LapsFinished") > 4) {
+                    console.log("bye")
+                    enemyControl = false
+                    sprites.setDataNumber(enemies2, "DestinationIndex", LVLwaypoints.length - 1)
                 }
                 AImoves(enemies2)
                 if (sprites.readDataNumber(enemies2, "DestinationIndex") == LVLwaypoints.length - 2) {
                     sprites.setDataBoolean(enemies2, "canCrossFinish", true)
                 }
             }
+        } else if (enemyControl == false && sprites.readDataNumber(enemies2, "LapsFinished") > 4) {
+        	
         } else {
         	
-        }
-        if (enemies2.tileKindAt(TileDirection.Center, assets.tile`myTile0`) && sprites.readDataBoolean(enemies2, "canCrossFinish") == true) {
-            sprites.setDataBoolean(enemies2, "canCrossFinish", false)
-            sprites.changeDataNumberBy(enemies2, "LapsFinished", 1)
-            console.log(sprites.readDataNumber(enemies2, "LapsFinished"))
-        }
-        if (sprites.readDataNumber(enemies2, "LapsFinished") > 4) {
-            spriteutils.setVelocityAtAngle(enemies2, spriteutils.heading(enemies2), spriteutils.speed(enemies2) * -0.05)
         }
     }
 })
