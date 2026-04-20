@@ -155,6 +155,7 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile5`, function (sprite, l
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
     spriteutils.setVelocityAtAngle(sprite, direction + 90, speed / 2)
 })
+let CrossingFinish = false
 let tempVar = 0
 let slide = 0
 let tempSprite: Sprite = null
@@ -185,12 +186,11 @@ namespace userconfig {
 }
 direction = 0
 speed = 0
-let CrossingFinish = false
 selecting = false
 speedCap = 120
 Inventory = 4
 let Placement = 1
-editMode = false
+editMode = true
 LVLwaypoints = [
 [330, 40],
 [400, 70],
@@ -374,7 +374,7 @@ game.onUpdate(function () {
     } else {
         spriteutils.setVelocityAtAngle(Mrro, spriteutils.degreesToRadians(direction), speed)
         speed += speed * -0.05
-        Render.setViewAngleInDegree(spriteutils.degreesToRadians(direction))
+        Render.setViewAngleInDegree(spriteutils.heading(Mrro))
     }
     if (Boosting == false) {
         if (!(PlayerCamera.tileKindAt(TileDirection.Center, assets.tile`myTile6`))) {
@@ -421,9 +421,9 @@ game.onUpdate(function () {
             sprites.setDataBoolean(enemies2, "canCrossFinish", false)
             sprites.changeDataNumberBy(enemies2, "LapsFinished", 1)
             console.log(sprites.readDataNumber(enemies2, "LapsFinished"))
-            if (sprites.readDataNumber(enemies2, "LapsFinished") > 5) {
-                spriteutils.setVelocityAtAngle(enemies2, 0, 0)
-            }
+        }
+        if (sprites.readDataNumber(enemies2, "LapsFinished") > 4) {
+            spriteutils.setVelocityAtAngle(enemies2, spriteutils.heading(enemies2), spriteutils.speed(enemies2) * -0.05)
         }
     }
 })
