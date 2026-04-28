@@ -90,9 +90,6 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
         }
     }
 })
-scene.onHitWall(SpriteKind.GreenShell, function (sprite, location) {
-    bumps += 1
-})
 function Start () {
     music.play(music.createSong(assets.song`Track 1`), music.PlaybackMode.LoopingInBackground)
     for (let enemies of sprites.allOfKind(SpriteKind.Enemy)) {
@@ -119,9 +116,11 @@ function debug () {
     }
 }
 function AImoves (enemy: Sprite) {
-    sprites.setDataNumber(enemy, "EnemyX", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][0] + randint(-5, 5))
-    sprites.setDataNumber(enemy, "EnemyY", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][1] + randint(-5, 5))
-    spriteutils.moveToAtSpeed(enemy, spriteutils.point(sprites.readDataNumber(enemy, "EnemyX"), sprites.readDataNumber(enemy, "EnemyY")), randint(100, 140))
+    if (enemyControl == true) {
+        sprites.setDataNumber(enemy, "EnemyX", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][0] + randint(-5, 5))
+        sprites.setDataNumber(enemy, "EnemyY", LVLwaypoints[sprites.readDataNumber(enemy, "DestinationIndex")][1] + randint(-5, 5))
+        spriteutils.moveToAtSpeed(enemy, spriteutils.point(sprites.readDataNumber(enemy, "EnemyX"), sprites.readDataNumber(enemy, "EnemyY")), randint(100, 140))
+    }
 }
 sprites.onOverlap(SpriteKind.KillerShell, SpriteKind.Player, function (sprite, otherSprite) {
     sprites.destroy(sprite)
@@ -160,7 +159,6 @@ let CrossingFinish = false
 let tempVar = 0
 let slide = 0
 let tempSprite: Sprite = null
-let bumps = 0
 let Feather: Sprite = null
 let Boosting = false
 let Shroom: Sprite = null
@@ -404,33 +402,16 @@ game.onUpdate(function () {
         direction = 360
     }
     for (let enemies2 of sprites.allOfKind(SpriteKind.Enemy)) {
-        if (enemyControl == true) {
-            if (enemies2.x >= sprites.readDataNumber(enemies2, "EnemyX") - 2 && enemies2.x <= sprites.readDataNumber(enemies2, "EnemyX") + 2 && (enemies2.y >= sprites.readDataNumber(enemies2, "EnemyY") - 2 && enemies2.y <= sprites.readDataNumber(enemies2, "EnemyY") + 2)) {
-                sprites.changeDataNumberBy(enemies2, "DestinationIndex", 1)
-                if (sprites.readDataNumber(enemies2, "DestinationIndex") > LVLwaypoints.length - 1 && sprites.readDataNumber(enemies2, "LapsFinished") < 4) {
-                    console.log("hi")
-                    sprites.setDataNumber(enemies2, "DestinationIndex", 0)
-                    sprites.changeDataNumberBy(enemies2, "LapsFinished", 1)
-                } else if (sprites.readDataNumber(enemies2, "DestinationIndex") > LVLwaypoints.length - 2 && sprites.readDataNumber(enemies2, "LapsFinished") > 4) {
-                    console.log("bye")
-                    sprites.setDataNumber(enemies2, "DestinationIndex", LVLwaypoints.length - 1)
-                    enemyControl = false
-                } else {
-                	
-                }
-                if (enemyControl == true) {
-                    AImoves(enemies2)
-                } else {
-                	
-                }
-                if (sprites.readDataNumber(enemies2, "DestinationIndex") == LVLwaypoints.length - 2) {
-                    sprites.setDataBoolean(enemies2, "canCrossFinish", true)
-                }
+        if (enemies2.x >= sprites.readDataNumber(enemies2, "EnemyX") - 2 && enemies2.x <= sprites.readDataNumber(enemies2, "EnemyX") + 2 && (enemies2.y >= sprites.readDataNumber(enemies2, "EnemyY") - 2 && enemies2.y <= sprites.readDataNumber(enemies2, "EnemyY") + 2)) {
+            sprites.changeDataNumberBy(enemies2, "DestinationIndex", 1)
+            if (sprites.readDataNumber(enemies2, "DestinationIndex") > LVLwaypoints.length - 1) {
+                sprites.setDataNumber(enemies2, "DestinationIndex", 0)
+                sprites.changeDataNumberBy(enemies2, "LapsFinished", 1)
             }
-        } else if (enemyControl == false && sprites.readDataNumber(enemies2, "LapsFinished") > 4) {
-        	
-        } else {
-        	
+            if (sprites.readDataNumber(enemies2, "LapsFinished") > 4) {
+                enemyControl = false
+            }
+            AImoves(enemies2)
         }
     }
 })
