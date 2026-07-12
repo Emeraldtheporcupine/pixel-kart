@@ -13,7 +13,6 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     if (PlayerControl == true) {
         if (editMode == false) {
             selecting = false
-            HUD.setImage(assets.image`BoxEmpty`)
             if (Inventory == 1) {
                 Shell = sprites.create(assets.image`shell`, SpriteKind.GreenShell)
                 animation.runImageAnimation(
@@ -101,6 +100,9 @@ sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Enemy, function (sprite, otherSpr
     sprite.x += -2
     otherSprite.x += 2
 })
+spriteutils.createRenderable(0, function (screen2) {
+    screen2.drawTransparentImage(assets.image`BoxEmpty`, 260, 0)
+})
 sprites.onOverlap(SpriteKind.KillerShell, SpriteKind.Enemy, function (sprite, otherSprite) {
     sprites.destroy(sprite)
     spriteutils.setVelocityAtAngle(otherSprite, 0, 0)
@@ -131,23 +133,16 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile5`, function (sprite, l
         selecting = true
         tiles.setTileAt(location, assets.tile`myTile7`)
         Render.jump(sprite, 20)
-        animation.runImageAnimation(
-        HUD,
-        assets.animation`Change`,
-        100,
-        true
-        )
         timer.after(2000, function () {
             Inventory = randint(1, 4)
-            animation.stopAnimation(animation.AnimationTypes.All, HUD)
             if (Inventory == 1) {
-                HUD.setImage(assets.image`BoxGreen`)
+            	
             } else if (Inventory == 2) {
-                HUD.setImage(assets.image`BoxRed`)
+            	
             } else if (Inventory == 3) {
-                HUD.setImage(assets.image`BoxShroom`)
+            	
             } else if (Inventory == 4) {
-                HUD.setImage(assets.image`BoxFeather`)
+            	
             }
         })
     }
@@ -167,7 +162,6 @@ let enemyControl = false
 let PlayerControl = false
 let tempVar2 = 0
 let CoinSprite: Sprite = null
-let HUD: Sprite = null
 let Kyrbo: Sprite = null
 let Sanic: Sprite = null
 let Mrro: Sprite = null
@@ -189,6 +183,7 @@ selecting = false
 speedCap = 120
 Inventory = 4
 let Placement = 1
+let distanceFromMrro = 0
 editMode = false
 LVLwaypoints = [
 [330, 40],
@@ -220,12 +215,9 @@ Render.moveWithController(0, 0, 0)
 Mrro = sprites.create(assets.image`MrroBack`, SpriteKind.Player)
 Sanic = sprites.create(assets.image`SanicBack`, SpriteKind.Enemy)
 Kyrbo = sprites.create(assets.image`KyrboBack`, SpriteKind.Enemy)
-HUD = sprites.create(assets.image`BoxEmpty`, SpriteKind.HeadsUpDisplay)
-HUD.setFlag(SpriteFlag.Ghost, true)
 Mrro.scale = 0.12
 Sanic.scale = 0.12
 Kyrbo.scale = 0.12
-HUD.scale = 0.12
 sprites.setDataNumber(Mrro, "LapsFinished", 0)
 sprites.setDataNumber(Sanic, "LapsFinished", 0)
 sprites.setDataNumber(Kyrbo, "LapsFinished", 0)
@@ -299,19 +291,12 @@ spriteutils.degreesToRadians(direction),
 -13,
 Mrro
 )
-spriteutils.placeAngleFrom(
-HUD,
-spriteutils.degreesToRadians(direction + 50),
-5,
-Mrro
-)
 Render.setViewAngleInDegree(direction)
 Mrro.setFlag(SpriteFlag.Ghost, false)
 Sanic.setFlag(SpriteFlag.Ghost, false)
 Mrro.setFlag(SpriteFlag.ShowPhysics, true)
 Sanic.setFlag(SpriteFlag.ShowPhysics, false)
 sprites.setDataNumber(Mrro, "DestinationIndex", -1)
-Render.setSpriteAttribute(HUD, RCSpriteAttribute.ZPosition, 3000)
 timer.after(1000, function () {
     music.play(music.stringPlayable("E - - - E - - - ", 120), music.PlaybackMode.UntilDone)
     music.play(music.stringPlayable("A - - - - - - - ", 120), music.PlaybackMode.InBackground)
@@ -340,18 +325,6 @@ game.onUpdate(function () {
         if (speed > speedCap) {
             speed = speedCap
         }
-        spriteutils.placeAngleFrom(
-        PlayerCamera,
-        spriteutils.degreesToRadians(direction),
-        -13,
-        Mrro
-        )
-        spriteutils.placeAngleFrom(
-        HUD,
-        spriteutils.degreesToRadians(direction + 50),
-        5,
-        Mrro
-        )
         Render.setViewAngleInDegree(direction)
         if (spriteutils.degreesToRadians(direction + slide) > Math.PI * 2) {
             spriteutils.setVelocityAtAngle(Mrro, 0, speed)
@@ -370,11 +343,19 @@ game.onUpdate(function () {
             tempVar = 0
             slide = 0
         }
+        distanceFromMrro = 0
     } else {
         spriteutils.setVelocityAtAngle(Mrro, spriteutils.degreesToRadians(direction), speed)
+        distanceFromMrro += -0.1
         speed += speed * -0.05
         Render.setViewAngleInDegree(spriteutils.heading(Mrro))
     }
+    spriteutils.placeAngleFrom(
+    PlayerCamera,
+    spriteutils.degreesToRadians(direction),
+    -13 + distanceFromMrro,
+    Mrro
+    )
     if (Boosting == false) {
         if (!(PlayerCamera.tileKindAt(TileDirection.Center, assets.tile`myTile6`))) {
             speedCap = 120
