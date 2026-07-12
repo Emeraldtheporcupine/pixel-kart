@@ -100,9 +100,6 @@ sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Enemy, function (sprite, otherSpr
     sprite.x += -2
     otherSprite.x += 2
 })
-spriteutils.createRenderable(0, function (screen2) {
-    screen2.drawTransparentImage(assets.image`BoxEmpty`, 260, 0)
-})
 sprites.onOverlap(SpriteKind.KillerShell, SpriteKind.Enemy, function (sprite, otherSprite) {
     sprites.destroy(sprite)
     spriteutils.setVelocityAtAngle(otherSprite, 0, 0)
@@ -124,6 +121,9 @@ function AImoves (enemy: Sprite) {
         spriteutils.moveToAtSpeed(enemy, spriteutils.point(sprites.readDataNumber(enemy, "EnemyX"), sprites.readDataNumber(enemy, "EnemyY")), randint(100, 140))
     }
 }
+spriteutils.createRenderable(0, function (screen2) {
+    screen2.drawTransparentImage(assets.image`BoxEmpty`, 260, 0)
+})
 sprites.onOverlap(SpriteKind.KillerShell, SpriteKind.Player, function (sprite, otherSprite) {
     sprites.destroy(sprite)
     speed = 0
@@ -151,6 +151,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSp
     spriteutils.setVelocityAtAngle(sprite, direction + 90, speed / 2)
 })
 let CrossingFinish = false
+let distanceFromMrro = 0
 let tempVar = 0
 let slide = 0
 let tempSprite: Sprite = null
@@ -180,27 +181,29 @@ namespace userconfig {
 direction = 0
 speed = 0
 selecting = false
+let Track = 1
 speedCap = 120
 Inventory = 4
 let Placement = 1
-let distanceFromMrro = 0
 editMode = false
-LVLwaypoints = [
-[330, 40],
-[400, 70],
-[450, 110],
-[455, 130],
-[455, 285],
-[430, 385],
-[360, 420],
-[260, 290],
-[200, 360],
-[110, 370],
-[65, 210],
-[60, 80],
-[120, 40],
-[210, 40]
-]
+if (Track == 1) {
+    LVLwaypoints = [
+    [330, 40],
+    [400, 70],
+    [450, 110],
+    [455, 130],
+    [455, 285],
+    [430, 385],
+    [360, 420],
+    [260, 290],
+    [200, 360],
+    [110, 370],
+    [65, 210],
+    [60, 80],
+    [120, 40],
+    [210, 40]
+    ]
+}
 if (editMode) {
     debug()
     Render.setViewMode(ViewMode.tilemapView)
